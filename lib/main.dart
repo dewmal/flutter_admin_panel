@@ -17,9 +17,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Ceylon App bots',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          iconTheme: IconThemeData(color: Colors.white)),
       home: DashboardBlocProvider(
         bloc: DashboardBloc()
           ..init(
@@ -54,34 +54,41 @@ class Dashboard extends StatelessWidget {
               ),
             );
           }
-
-          DashboardWidgetState activeScreen = snapshot.data.activeScreen();
+          DashboardState state = snapshot.data;
+          DashboardWidgetState activeScreen = state.activeScreen();
 
           return Row(
             children: <Widget>[
-              Container(
-                width: ss.width * 1 / 6,
-                color: Colors.blue[100],
-                child: ListView(
-                  children: <Widget>[
-                    FlatButton(
-                        onPressed: () async {
-                          log("Change request");
-                          await dashCtrl.changeScreen(0);
-                        },
-                        child: Text("Home")),
-                    FlatButton(
-                        onPressed: () async {
-                          await dashCtrl.changeScreen(1);
-                        },
-                        child: Text("Settings")),
-                  ],
-                ),
-              ),
+              state.isSliderOpen
+                  ? Container(
+                      width: ss.width * 1 / 6,
+                      color: Colors.blue[100],
+                      child: ListView(
+                        children: <Widget>[
+                          FlatButton(
+                              onPressed: () async {
+                                log("Change request");
+                                await dashCtrl.changeScreen(0);
+                              },
+                              child: Text("Home")),
+                          FlatButton(
+                              onPressed: () async {
+                                await dashCtrl.changeScreen(1);
+                              },
+                              child: Text("Settings")),
+                        ],
+                      ),
+                    )
+                  : Container(),
               Expanded(
                   child: Scaffold(
                 appBar: AppBar(
                   title: Text("${activeScreen.name}"),
+                  leading: FlatButton(
+                      onPressed: () {
+                        dashCtrl.toggleSlider();
+                      },
+                      child: Icon(Icons.menu)),
                 ),
                 body: activeScreen.child,
               ))

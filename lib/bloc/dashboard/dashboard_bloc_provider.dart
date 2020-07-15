@@ -25,13 +25,19 @@ class DashboardBloc {
     });
   }
 
-  void init(DashboardChangeRequest dashboardChangeRequest) {
+  init(DashboardChangeRequest dashboardChangeRequest) {
     _query.add(dashboardChangeRequest);
   }
 
   Future<void> changeScreen(int i) async {
     state.currentScreen = i;
     d.log("Screen change to $i");
+    _query.add(DashboardChangeRequest(state));
+  }
+
+  void toggleSlider() {
+    state.isSliderOpen = !state.isSliderOpen;
+    d.log("Slider Toggle Request ${state.isSliderOpen}");
     _query.add(DashboardChangeRequest(state));
   }
 }

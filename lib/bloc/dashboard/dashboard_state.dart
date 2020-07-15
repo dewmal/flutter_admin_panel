@@ -14,9 +14,12 @@ class DashboardChangeRequest {
 
 class DashboardState {
   int currentScreen;
-  bool isSliderOpen;
+  bool isSliderOpen = false;
   final List<DashboardWidgetState> screens;
-  DashboardState({this.screens = const [], this.currentScreen = -1});
+  DashboardState(
+      {this.screens = const [],
+      this.currentScreen = -1,
+      this.isSliderOpen = false});
 
   DashboardWidgetState activeScreen() {
     return screens[currentScreen];
