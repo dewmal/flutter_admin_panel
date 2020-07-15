@@ -1,3 +1,8 @@
+import 'dart:developer';
+
+import 'package:bot_framwork/bloc/dashboard/dashboard_bloc.dart';
+import 'package:bot_framwork/bloc/dashboard/dashboard_bloc_provider.dart';
+import 'package:bot_framwork/bloc/dashboard/dashboard_state.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -9,44 +14,105 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Ceylon App bots',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Manage bots'),
+      home: DashboardBlocProvider(
+        bloc: DashboardBloc()
+          ..init(
+              DashboardChangeRequest(DashboardState(currentScreen: 0, screens: [
+            DashboardWidgetState(name: "Home", child: HomePage()),
+            DashboardWidgetState(name: "Settings", child: SettingsPage())
+          ]))),
+        child: Dashboard(),
+      ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class Dashboard extends StatelessWidget {
+  const Dashboard({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+    var dashCtrl = DashboardBlocProvider.of(context);
+
+    Size ss = MediaQuery.of(context).size;
+
+    return StreamBuilder<DashboardState>(
+        stream: dashCtrl.result,
+        builder: (context, snapshot) {
+          if (snapshot.data == null || snapshot.error != null) {
+            log("No loading...");
+            log("Error ${snapshot.error}");
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          DashboardWidgetState activeScreen = snapshot.data.activeScreen();
+
+          return Row(
+            children: <Widget>[
+              Container(
+                width: ss.width * 1 / 6,
+                color: Colors.blue[100],
+                child: ListView(
+                  children: <Widget>[
+                    FlatButton(
+                        onPressed: () async {
+                          log("Change request");
+                          await dashCtrl.changeScreen(0);
+                        },
+                        child: Text("Home")),
+                    FlatButton(
+                        onPressed: () async {
+                          await dashCtrl.changeScreen(1);
+                        },
+                        child: Text("Settings")),
+                  ],
+                ),
+              ),
+              Expanded(
+                  child: Scaffold(
+                appBar: AppBar(
+                  title: Text("${activeScreen.name}"),
+                ),
+                body: activeScreen.child,
+              ))
+            ],
+          );
+        });
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(
+        child: Text("Home page"),
       ),
-      body: Container(
-        child: Row(
-          children: <Widget>[],
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(
+        child: Text("Settings page"),
+      ),
     );
   }
 }
