@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:bot_framwork/bloc/dashboard/dashboard_bloc.dart';
 import 'package:bot_framwork/bloc/dashboard/dashboard_bloc_provider.dart';
 import 'package:bot_framwork/bloc/dashboard/dashboard_state.dart';
+import 'package:bot_framwork/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'screen/dashboard_screen.dart';
@@ -20,17 +19,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Ceylon App bots',
-      theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          iconTheme: IconThemeData(color: Colors.white)),
+      theme: themeData,
       home: DashboardBlocProvider(
         bloc: DashboardBloc()
-          ..init(
-              DashboardChangeRequest(DashboardState(currentScreen: 0, screens: [
-            DashboardWidgetState(name: "Home", child: HomePage()),
-            DashboardWidgetState(name: "Settings", child: SettingsPage())
-          ]))),
+          ..init(DashboardChangeRequest(DashboardState(
+              currentScreen: 0,
+              screens: [
+                DashboardWidgetState(name: "Home", child: HomePage()),
+                DashboardWidgetState(name: "Settings", child: SettingsPage())
+              ],
+              isSliderOpen: true))),
         child: Dashboard(),
       ),
     );
